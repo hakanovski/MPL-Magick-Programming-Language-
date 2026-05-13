@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-neon-cyan: #00f2ff;
+  --color-neon-violet: #bc13fe;
+  --color-gold: #d4af37;
+  --color-bg-dark: #050505;
+}
+
+:root {
+  --neon-cyan: #00f2ff;
+  --neon-violet: #bc13fe;
+  --gold: #d4af37;
+  --bg-dark: #050505;
+}
+
+.geometric-grid {
+  background-image: radial-gradient(circle, #ffffff05 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.sigil-circle {
+  border: 1px solid var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
+}
+
+.scanline {
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.2) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+}
+
+.glow-text {
+  text-shadow: 0 0 8px rgba(0, 242, 255, 0.4);
+}
+
+.terminal-blur {
+  backdrop-filter: blur(4px);
+  background: rgba(10, 10, 10, 0.8);
+}
+
+.border-arcane {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--neon-cyan);
+}

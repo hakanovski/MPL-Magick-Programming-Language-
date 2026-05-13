@@ -1,0 +1,11 @@
+[package]
+name = "mpl_compiler"
+version = "0.1.0"
+edition = "2021"
+description = "MPL Core Kernel, Compiler, and Occult Virtual Machine (OVM)"
+
+[dependencies]
+# Future dependencies for Metal interop, matrix multiplication, etc.
+# metal = "0.27"
+# ndarray = "0.15"
+# tokio = { version = "1", features = ["full"] }

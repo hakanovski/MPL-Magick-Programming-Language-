@@ -1,0 +1,6 @@
+{
+  "name": "MPL Technomancy OS",
+  "description": "Magick Programming Language Framework. Compiler, OVM, and IDE for non-linear probabilistic computation via Apple Silicon unified memory.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
