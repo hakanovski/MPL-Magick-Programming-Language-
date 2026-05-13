@@ -2,32 +2,50 @@ mod lexer;
 mod parser;
 mod ast;
 mod ovm;
+mod gematria;
+mod harmonic;
+mod akashic;
+mod metal_ffi;
+mod stdlib;
 
 use lexer::Lexer;
 use parser::Parser;
-use ovm::OccultVM;
+use ovm::OVM;
 
 /// CORE INITIALIZATION VECTOR
-/// Phase 1: Occult Virtual Machine entry point.
+/// Phase 1.3: Sub-system Integration and Execution Engine
 fn main() {
+    println!("[KERNEL] Booting the Magick Programming Language (MPL) Framework...");
+    println!("[KERNEL] Target Architecture: Apple M4 Max Unified Memory (Simulated)");
+    
+    // The raw esoteric intent vector (MagickScript)
     let source_code = r#"
         sacrifice btc_stop = 369.0
         sacrifice directive = "PREVENT LOSS"
+        invoke hash_intent()
+        invoke synchronize_mlx()
         transmute directive
     "#;
 
-    println!("--- INITIALIZING MAGICK PROGRAMMING LANGUAGE (MPL) ---");
-    println!("Base Frequency Alignment: 432 Hz");
-    println!("Ingesting MagickScript (.ms) vector...");
-
+    println!("[COMPILER] Ingesting .ms payload...");
+    
+    // Phase 1: Tokenization
+    println!("[LEXER] Collapsing textual noise into absolute tokens...");
     let lexer = Lexer::new(source_code);
+    
+    // Phase 2: AST Construction
+    println!("[PARSER] Assembling Abstract Syntax Tree...");
     let mut parser = Parser::new(lexer);
     let program = parser.parse_program();
 
-    println!("AST Generation Complete.\n");
+    println!("[PARSER] AST generated successfully. System ready for runtime transfer.");
 
-    let mut ovm = OccultVM::new(432.0);
+    // Phase 3: Runtime Execution
+    println!("[OVM] Initializing Occult Virtual Machine at 432.0 Hz baseline.");
+    let mut ovm = OVM::new(432.0);
+    
+    println!("[EXECUTION] Resolving Intent and anchoring state variables...");
     ovm.execute(program);
 
-    println!("--- EXECUTION OBLITERATED NOISE. STATE ANCHORED. ---");
+    println!("[KERNEL] Execution complete. Noise obliterated. State safely anchored.");
 }
