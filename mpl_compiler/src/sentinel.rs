@@ -11,8 +11,10 @@ use crate::ovm::{OVM, AppManifestExecutor};
 use crate::lexer::Lexer;
 use crate::parser::Parser;
 
+use crate::gateway::{SharedSentinelState, SentinelLog};
+
 /// Autonomous loop that monitors conditions and executes unprompted manifestation when resonance peaks.
-pub async fn watch_sentinel_windows() {
+pub async fn watch_sentinel_windows(shared_state: SharedSentinelState) {
     println!("[SENTINEL] Sovereign Sentinel online. Scanning the Chronos and Oracle streams for Golden Resonance...");
 
     let mut oracle = FinancialOracle::new();
@@ -43,9 +45,19 @@ pub async fn watch_sentinel_windows() {
             let mut ovm = OVM::new(432.0, Box::new(AppManifestExecutor::new()), intent_text);
             ovm.execute(program);
             
-            if let Some(seal) = &ovm.last_ritual_seal {
+            let seal_id = if let Some(seal) = &ovm.last_ritual_seal {
                 println!("[SENTINEL] Sovereign execution sealed. ID: {}", seal.seal_id);
-            }
+                Some(seal.seal_id.clone())
+            } else {
+                None
+            };
+            
+            shared_state.push(SentinelLog {
+                timestamp: std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs(),
+                resonance_score: current_temporal_score,
+                intent: intent_text.to_string(),
+                seal_id,
+            });
             
             // Sleep longer after a massive autonomous cast to prevent flooding real-world IoT
             sleep(Duration::from_secs(369)).await;

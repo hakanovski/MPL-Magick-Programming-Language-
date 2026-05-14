@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  mpl_sentinel:
+    build:
+      context: .
+      dockerfile: mpl_compiler.Dockerfile
+    ports:
+      - "3690:3690"
+    environment:
+      - RUST_LOG=info
+      - MPL_WEBHOOK_URL=http://mpl_bridge:8080/manifest_hook
+    restart: unless-stopped
+    # Target Apple Silicon execution where possible
+    platform: linux/arm64 
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3690
+      - NODE_ENV=production
+    restart: unless-stopped
+    platform: linux/arm64

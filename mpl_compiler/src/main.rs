@@ -26,6 +26,7 @@ mod probability;
 mod ledger;
 mod sentinel;
 mod bridge;
+mod sdk_bridge;
 
 use lexer::Lexer;
 use parser::Parser;
@@ -76,16 +77,18 @@ async fn main() {
         }
         "daemon" => {
             println!("[KERNEL] Initializing Daemon Oracle loop and Altar Gateway...");
+            let shared_state = gateway::SharedSentinelState::new();
             let daemon_task = tokio::spawn(run_daemon());
-            let gateway_task = tokio::spawn(gateway::start_gateway());
+            let gateway_task = tokio::spawn(gateway::start_gateway(shared_state.clone()));
             
             let _ = tokio::join!(daemon_task, gateway_task);
         }
         "sentinel" => {
             println!("[KERNEL] Initializing Sovereign Sentinel, Oracle Stream, and Altar Gateway...");
+            let shared_state = gateway::SharedSentinelState::new();
             let daemon_task = tokio::spawn(run_daemon());
-            let gateway_task = tokio::spawn(gateway::start_gateway());
-            let sentinel_task = tokio::spawn(sentinel::watch_sentinel_windows());
+            let gateway_task = tokio::spawn(gateway::start_gateway(shared_state.clone()));
+            let sentinel_task = tokio::spawn(sentinel::watch_sentinel_windows(shared_state.clone()));
             
             let _ = tokio::join!(daemon_task, gateway_task, sentinel_task);
         }

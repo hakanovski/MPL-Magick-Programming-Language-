@@ -36,8 +36,34 @@ transmute directive
   );
 
   const [logs, setLogs] = useState<string[]>([]);
+  const [sentinelLogs, setSentinelLogs] = useState<any[]>([]);
   const [isRunning, setIsRunning] = useState(false);
+  const [isMirrorMode, setIsMirrorMode] = useState(false);
   const [chartData, setChartData] = useState(generateHarmonicData());
+
+  const accentColor = isMirrorMode ? '#00f2ff' : '#bc13fe';
+  const accentText = isMirrorMode ? 'text-[#00f2ff]' : 'text-[#bc13fe]';
+  const accentBorder = isMirrorMode ? 'border-[#00f2ff]' : 'border-[#bc13fe]';
+  const accentBg = isMirrorMode ? 'bg-[#00f2ff]' : 'bg-[#bc13fe]';
+
+  useEffect(() => {
+    const fetchSentinelLogs = async () => {
+      try {
+        // Fallback mock if gateway isn't reachable (for initial SSR styling)
+        const res = await fetch('/api/sentinel_logs');
+        if (res.ok) {
+          const data = await res.json();
+          setSentinelLogs(data);
+        }
+      } catch (e) {
+        // Ignore CORS/Network errors in preview sandbox until proxy is up
+      }
+    };
+    
+    fetchSentinelLogs();
+    const interval = setInterval(fetchSentinelLogs, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -58,32 +84,49 @@ transmute directive
     return () => clearInterval(interval);
   }, [isRunning]);
 
-  const runRitual = () => {
+  const runRitual = async () => {
     setIsRunning(true);
     setLogs([]);
     
-    const steps = [
+    // Simulate real logs over time
+    const initialSteps = [
       "SYSTEM: Connecting to Native Apple MLX bindings...",
       "SYSTEM: Initializing Occult Virtual Machine (OVM)...",
       "OVM: Loading AST parameters...",
-      "OVM: [Parsed] sacrifice btc_stop = 369.0",
-      "OVM: [Parsed] sacrifice directive = PREVENT LOSS",
-      "METAL: Allocating Unified Memory (Buffer: 8.4 GB)",
+      `METAL: Allocating ${isMirrorMode ? 'Shadow' : 'Unified'} Memory (Buffer: 8.4 GB)`,
       "MLX: Calibrating Tensor Gates...",
       "COMPILER: Tuning execution matrix to 432Hz baseline",
-      ">> TRANSMUTATION COMPLETE -> TARGET: ETHER",
-      ">> ANOMALY MATRIX ALIGNED",
-      "SYSTEM: Ritual anchored. Probabilistic streams locked."
     ];
 
-    steps.forEach((step, index) => {
-      setTimeout(() => {
-        setLogs(prev => [...prev, step]);
-        if (index === steps.length - 1) {
-          setTimeout(() => setIsRunning(false), 2000);
-        }
-      }, index * 400); // 400ms delay per step
-    });
+    for (let i = 0; i < initialSteps.length; i++) {
+        await new Promise(r => setTimeout(r, 400));
+        setLogs(prev => [...prev, initialSteps[i]]);
+    }
+
+    try {
+      if (isMirrorMode) {
+          const res = await fetch('/api/simulate_intent', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-MPL-SHADOW': 'true'
+              },
+              body: JSON.stringify({ intent_text: "Execute from Mirror Sandbox" })
+          });
+          const data = await res.json();
+          setLogs(prev => [...prev, `>> SHADOW SIMULATION COMPLETE`]);
+          setLogs(prev => [...prev, `>> PROBABILITY CONFIDENCE: ${(data.probability_confidence * 100).toFixed(2)}%`]);
+          setLogs(prev => [...prev, `SYSTEM: Sandbox simulation finished.`]);
+      } else {
+          setLogs(prev => [...prev, ">> TRANSMUTATION COMPLETE -> TARGET: ETHER"]);
+          setLogs(prev => [...prev, ">> ANOMALY MATRIX ALIGNED"]);
+          setLogs(prev => [...prev, "SYSTEM: Ritual anchored. Probabilistic streams locked."]);
+      }
+    } catch (e) {
+      setLogs(prev => [...prev, "SYSTEM_FAULT: Temporal gateway offline."]);
+    }
+    
+    setTimeout(() => setIsRunning(false), 1000);
   };
 
   return (
@@ -117,9 +160,16 @@ transmute directive
             <h1 className="text-sm font-bold tracking-widest glow-text">PROJECT <span className="text-[#00f2ff]">ZERO</span> <span className="opacity-30">/</span> MPL</h1>
           </div>
           <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.2em] text-[#888]">
+            <button 
+              onClick={() => setIsMirrorMode(!isMirrorMode)}
+              className={`px-3 py-1 border rounded-md uppercase tracking-widest text-[9px] transition-all flex border-opacity-50 ${isMirrorMode ? 'border-[#00f2ff] text-[#00f2ff] bg-[#00f2ff]/10' : 'border-[#bc13fe] text-[#bc13fe] bg-[#bc13fe]/10'}`}
+            >
+              Mirror Sandbox {isMirrorMode ? "ON" : "OFF"}
+            </button>
+            <span>|</span>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#00f2ff] animate-pulse" />
-              APPLE M4 MAX UNIFIED MEMORY: 128GB
+              <div className={`w-2 h-2 rounded-full ${accentBg} animate-pulse`} />
+              APPLE M4 MAX
             </div>
             <span>|</span>
             <span>RUST KERNEL: V0.1.0</span>
@@ -132,18 +182,18 @@ transmute directive
           {/* Left Column: Editor */}
           <section className="col-span-12 lg:col-span-7 border-arcane flex flex-col rounded-xl overflow-hidden relative backdrop-blur-sm bg-black/40">
             <div className="h-10 border-b border-[#222] bg-[#050505]/80 flex items-center justify-between px-4">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-widest text-[#00f2ff]">
+              <div className={`flex items-center gap-2 text-[11px] uppercase tracking-widest ${accentText}`}>
                 <Terminal className="w-4 h-4" />
                 <span>MAGICK_SCRIPT_IDE</span>
-                <span className="bg-[#111] px-2 py-0.5 rounded text-[#00f2ff]/50 text-[10px]">.ms</span>
+                <span className="bg-[#111] px-2 py-0.5 rounded opacity-50 text-[10px]">.ms</span>
               </div>
               <button 
                 onClick={runRitual} 
                 disabled={isRunning}
-                className="flex items-center gap-2 border border-[#00f2ff]/50 bg-[#00f2ff]/10 text-[#00f2ff] hover:bg-[#00f2ff]/20 px-4 py-1 text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex items-center gap-2 border ${accentBorder} border-opacity-50 ${accentBg}/10 ${accentText} hover:bg-opacity-20 px-4 py-1 text-[10px] font-bold uppercase tracking-widest transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <Zap className="w-3 h-3" />
-                {isRunning ? 'Synthesizing...' : 'Run Ritual'}
+                {isRunning ? 'Synthesizing...' : (isMirrorMode ? 'Simulate' : 'Run Ritual')}
               </button>
             </div>
             
@@ -178,10 +228,10 @@ transmute directive
             </div>
 
             {/* Bottom Right: OVM Terminal output */}
-            <div className="flex-1 border-arcane p-4 flex flex-col font-mono rounded-xl relative backdrop-blur-sm bg-black/40">
-              <div className="flex items-center justify-between mb-3 text-[11px] uppercase tracking-widest text-[#d4af37]">
+            <div className={`flex-1 border-arcane p-4 flex flex-col font-mono rounded-xl relative backdrop-blur-sm bg-black/40 border-t ${accentBorder} border-opacity-30`}>
+              <div className={`flex items-center justify-between mb-3 text-[11px] uppercase tracking-widest ${accentText}`}>
                  <div>OVM_COMPILER_LOG</div>
-                 {isRunning && <span className="text-[9px] text-[#00f2ff] animate-pulse uppercase">Ingesting...</span>}
+                 {isRunning && <span className={`text-[9px] ${accentText} animate-pulse uppercase`}>Ingesting...</span>}
               </div>
               
               <div className="flex-1 overflow-y-auto space-y-1 bg-black/80 p-3 border border-dashed border-[#444] text-[9px] text-blue-300">
@@ -189,10 +239,38 @@ transmute directive
                   <div className="opacity-50 italic">[INFO] Awaiting sacrifice vector...</div>
                 )}
                 {logs.map((log, index) => (
-                  <div key={index} className={`${log.startsWith('>>') ? 'text-[#00f2ff] font-bold' : log.startsWith('OVM: [Parsed]') ? 'text-[#bc13fe]' : log.startsWith('SYSTEM:') ? 'text-[#d4af37]' : ''}`}>
+                  <div key={index} className={`${log.startsWith('>>') ? `${accentText} font-bold` : log.startsWith('OVM: [Parsed]') ? 'text-[#bc13fe]' : log.startsWith('SYSTEM:') ? 'text-[#d4af37]' : ''}`}>
                     {log}
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Sovereign Sentinel Feed */}
+            <div className="flex-[0.8] border-arcane p-4 flex flex-col font-mono rounded-xl relative backdrop-blur-sm bg-black/40 border-[#bc13fe]/30">
+              <div className="flex items-center justify-between mb-3 text-[11px] uppercase tracking-widest text-[#bc13fe]">
+                 <div className="flex items-center gap-2">
+                   <Shield className="w-4 h-4" />
+                   <span>SOVEREIGN_SENTINEL_FEED</span>
+                 </div>
+                 <span className="text-[9px] text-[#bc13fe] animate-pulse uppercase">Monitoring</span>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto space-y-2 text-[9px]">
+                {sentinelLogs.length === 0 ? (
+                  <div className="opacity-50 italic text-[#bc13fe]">[AWAITING GOLDEN RESONANCE...]</div>
+                ) : (
+                  sentinelLogs.map((slog, i) => (
+                    <div key={i} className="p-2 border border-[#bc13fe]/20 bg-[#bc13fe]/5 rounded">
+                      <div className="flex justify-between items-center text-[#bc13fe] mb-1 opacity-70">
+                        <span>RES: {slog.resonance_score.toFixed(3)}</span>
+                        <span>{new Date(slog.timestamp * 1000).toLocaleTimeString()}</span>
+                      </div>
+                      <div className="text-white mb-1">&gt; {slog.intent}</div>
+                      <div className="text-[#00f2ff] opacity-60">SEAL_{slog.seal_id?.slice(0, 16)}...</div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
             

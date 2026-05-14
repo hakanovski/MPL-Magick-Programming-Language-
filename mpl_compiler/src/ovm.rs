@@ -58,6 +58,8 @@ pub struct OVM {
     pub grimoire: ImmutableGrimoire,
 
     pub last_ritual_seal: Option<crate::ledger::RitualSeal>,
+
+    pub is_shadow_mode: bool,
 }
 
 impl OVM {
@@ -79,6 +81,7 @@ impl OVM {
             probability_confidence: 0.0,
             grimoire: ImmutableGrimoire::new(),
             last_ritual_seal: None,
+            is_shadow_mode: false,
         }
     }
 
@@ -113,8 +116,12 @@ impl OVM {
         }
 
         // Generate the Ritual Seal after execution
-        let seal = self.grimoire.forge_seal(resonance_score, prime_seed);
-        self.last_ritual_seal = Some(seal);
+        if !self.is_shadow_mode {
+            let seal = self.grimoire.forge_seal(resonance_score, prime_seed);
+            self.last_ritual_seal = Some(seal);
+        } else {
+            println!("[OVM_LAYER] Shadow Mode active. Bypassing Immutable Ledger.");
+        }
     }
 
     /// Evaluates and enforces a specific AST statement primitive.
@@ -153,13 +160,17 @@ impl OVM {
                 }
 
                 // Transmute into physical reality via hardware/market hooks
-                self.execution_engine.execute_intent(&directive_str, payload.clone());
+                if !self.is_shadow_mode {
+                    self.execution_engine.execute_intent(&directive_str, payload.clone());
 
-                let res = self.temporal_resonance;
-                let dir_clone = directive_str.clone();
-                tokio::spawn(async move {
-                    crate::bridge::trigger_physical_manifestation(&dir_clone, res).await;
-                });
+                    let res = self.temporal_resonance;
+                    let dir_clone = directive_str.clone();
+                    tokio::spawn(async move {
+                        crate::bridge::trigger_physical_manifestation(&dir_clone, res).await;
+                    });
+                } else {
+                    println!("[OVM_LAYER] Shadow Mode active. Skipping external bridge physical manifestation.");
+                }
 
                 // FFI hook stand-in. In production, this pushes to the MLX layer.
                 println!("[OVM_LAYER] Transmutation Event -> Intent Vector collapsed to [{}]: {:?}", directive_str, payload);
