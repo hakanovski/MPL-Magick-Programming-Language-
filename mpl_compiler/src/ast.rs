@@ -20,6 +20,9 @@ pub enum MplType {
     
     /// Probabilistic matrix constraint for tensor calculations on Apple MLX.
     TensorGate(Vec<f64>),        
+
+    /// Visual generative geometry representing an esoteric sigil.
+    VisualSigil(Vec<crate::sigil::SigilPoint>),
 }
 
 #[derive(Debug, PartialEq, Clone)]

@@ -27,7 +27,8 @@ impl AkashicGrid {
     /// low-latency numerical hash and binds it to the current temporal vector.
     /// (Conceptually async-ready for future network-bound distributed ledgers).
     pub fn write_intent(&mut self, intent_string: &str) {
-        let hash = hash_to_gematria(intent_string);
+        let entropy = crate::entropy::collect_hardware_entropy();
+        let hash = hash_to_gematria(intent_string, entropy);
         
         let temporal_vector = SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -45,5 +46,14 @@ impl AkashicGrid {
     /// Extracts the harmonic resonance value tied to a previously manifested intent.
     pub fn read_resonance(&self, target_hash: u32) -> Option<f64> {
         self.state_map.get(&target_hash).map(|(resonance, _)| *resonance)
+    }
+
+    /// Calculates temporal success rate for evolution
+    pub fn get_temporal_success_rate(&self) -> f64 {
+        if self.state_map.is_empty() {
+            return 369.0;
+        }
+        let total_resonance: f64 = self.state_map.values().map(|(r, _)| *r).sum();
+        total_resonance / (self.state_map.len() as f64)
     }
 }

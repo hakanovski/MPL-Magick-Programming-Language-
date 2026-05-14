@@ -7,9 +7,10 @@
 
 /// Translates the input sequence into a fixed-width numerical hash based
 /// on Agrippan symbolic mapping, then reduces to a localized dimensional constant.
+/// Incorporates hardware entropy as an Aetheric Pulse modifier.
 /// Zero heap allocations utilized.
-pub fn hash_to_gematria(input: &str) -> u32 {
-    let mut sum: u32 = 0;
+pub fn hash_to_gematria(input: &str, entropy_modifier: u64) -> u32 {
+    let mut sum: u32 = (entropy_modifier % 432_000) as u32; // Fold entropy into the genesis sum
     
     // We iterate over bytes directly when assuming ASCII characters,
     // but char allows UTF-8 safety with negligible overhead for this pass.

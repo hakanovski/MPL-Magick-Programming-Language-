@@ -6,10 +6,12 @@
 
 use std::collections::HashMap;
 use crate::ast::{Program, Statement, Expression, MplType};
+use crate::benchmark::Oracle; // Keep standard imports if any
 use crate::gematria::hash_to_gematria;
 use crate::akashic::AkashicGrid;
 use crate::stdlib::{invoke_synchronize_mlx, log_to_akashic};
 use crate::execution::ExecutionEngine;
+use crate::evolution::EvolutionEngine;
 
 /// The runtime environment holding execution context and bounded memory.
 pub struct OVM {
@@ -27,8 +29,14 @@ pub struct OVM {
     /// The collective state grid simulating vector memory constraints.
     akashic_record: AkashicGrid,
 
+    /// State capture for external API returning geometric intent
+    pub last_visual_sigil: Option<Vec<crate::sigil::SigilPoint>>,
+
     /// The execution engine for transmuting intent into physical reality
     execution_engine: Box<dyn ExecutionEngine>,
+
+    /// The Self-Modifying Core handling programmatic mutations
+    pub evolution_engine: EvolutionEngine,
 }
 
 impl OVM {
@@ -39,18 +47,32 @@ impl OVM {
             hz_alignment: tuning,
             is_anchored: false,
             akashic_record: AkashicGrid::new(),
+            last_visual_sigil: None,
             execution_engine,
+            evolution_engine: EvolutionEngine::new(),
         }
     }
 
     /// Primary execution loop. A deterministic march through the AST sequence.
     /// Traverses the probability fields to instantiate state changes.
-    pub fn execute(&mut self, program: Program) {
+    pub fn execute(&mut self, mut program: Program) {
         self.is_anchored = true;
-        for statement in program.statements {
+        
+        // Execute the current generation of the AST
+        for statement in program.statements.clone() {
             self.evaluate_statement(statement);
         }
         self.is_anchored = false;
+
+        // Simulate reading the Akashic Record outcome for fitness.
+        // In a true deployment, this would trace actual physical entropy/market results.
+        let resonance_score = self.akashic_record.get_temporal_success_rate();
+        let is_successful = resonance_score >= 369.0; // placeholder for hardware feedback loop
+
+        if !is_successful || self.evolution_engine.generation < 3 {
+             println!("[OVM_EVOLUTION_HITCH] Sub-optimal resonance ({}). Triggering evolutionary mutation.", resonance_score);
+             self.evolution_engine.mutate_ast(&mut program);
+        }
     }
 
     /// Evaluates and enforces a specific AST statement primitive.
@@ -64,22 +86,35 @@ impl OVM {
             }
             
             // Transmute collapses an intent vector into finalized output / state resolution.
-            Statement::Transmute { intent, target } => {
+            Statement::Transmute { intent, target: _ } => {
                 let eval_val = self.evaluate_expression(intent);
                 
+                let directive_str = if let MplType::Intent(ref text) = eval_val {
+                    text.clone()
+                } else {
+                    "UNKNOWN_DIRECTIVE".to_string()
+                };
+
                 // If the transmuted value is an intent string, serialize it into the ledger.
                 if let MplType::Intent(ref text) = eval_val {
                     log_to_akashic(&mut self.akashic_record, text);
-                    
-                    // Pull a resonance metric (or use baseline) for the action weight
-                    let execution_weight = self.hz_alignment;
-                    
-                    // Transmute into physical reality via hardware/market hooks
-                    self.execution_engine.execute_intent(text, execution_weight);
                 }
 
+                // Resolving standard esoteric payload from the grid
+                let payload = self.memory_registry.get("target_vector").cloned().unwrap_or(eval_val.clone());
+
+                // Capture visual geometry if present
+                if let MplType::VisualSigil(ref data) = payload {
+                    self.last_visual_sigil = Some(data.clone());
+                } else if let MplType::VisualSigil(ref data) = eval_val {
+                    self.last_visual_sigil = Some(data.clone());
+                }
+
+                // Transmute into physical reality via hardware/market hooks
+                self.execution_engine.execute_intent(&directive_str, payload.clone());
+
                 // FFI hook stand-in. In production, this pushes to the MLX layer.
-                println!("[OVM_LAYER] Transmutation Event -> Intent Vector collapsed to [{}]: {:?}", target, eval_val);
+                println!("[OVM_LAYER] Transmutation Event -> Intent Vector collapsed to [{}]: {:?}", directive_str, payload);
             }
 
             // Invocation executes hardcoded macro-functions or triggers Metal shaders.
@@ -111,9 +146,28 @@ impl OVM {
                     MplType::Frequency(mlx_result)
                 } else if target == "hash_intent" {
                     // Primitive runtime hook into the Gematria algorithm
-                    let hashed_val = hash_to_gematria(&target);
+                    let entropy = crate::entropy::collect_hardware_entropy();
+                    let hashed_val = hash_to_gematria(&target, entropy);
                     // Return as a harmonic frequency for mathematical interop
                     MplType::Frequency(hashed_val as f64)
+                } else if target == "generate_sigil" {
+                    // Evaluate the intent or target, for now we will just use a placeholder intent or extract it
+                    // if args were parsed, but ast expression doesn't resolve args inside dispatch yet.
+                    // We will simulate it using a register.
+                    let directive = self.memory_registry.get("directive")
+                        .or_else(|| self.memory_registry.get("target_vector"))
+                        .cloned();
+                        
+                    let text = if let Some(MplType::Intent(val)) = directive {
+                         val
+                    } else if let Some(MplType::Sigil(val)) = directive {
+                         val
+                    } else {
+                         "UNIVERSAL_HARMONIC".to_string()
+                    };
+                    
+                    let sigil_data = crate::stdlib::invoke_generate_sigil(&text);
+                    MplType::VisualSigil(sigil_data)
                 } else {
                     panic!("Architectural Fault: Unrecognized external invocation -> {}", target);
                 }

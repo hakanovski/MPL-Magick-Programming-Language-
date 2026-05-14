@@ -11,6 +11,11 @@ mod oracle;
 mod grimoire;
 mod aether;
 mod execution;
+mod gateway;
+mod mlx_engine;
+mod sigil;
+mod evolution;
+mod entropy;
 
 use lexer::Lexer;
 use parser::Parser;
@@ -59,8 +64,11 @@ async fn main() {
             }
         }
         "daemon" => {
-            println!("[KERNEL] Initializing Daemon Oracle loop...");
-            run_daemon().await;
+            println!("[KERNEL] Initializing Daemon Oracle loop and Altar Gateway...");
+            let daemon_task = tokio::spawn(run_daemon());
+            let gateway_task = tokio::spawn(gateway::start_gateway());
+            
+            let _ = tokio::join!(daemon_task, gateway_task);
         }
         _ => {
             eprintln!("[KERNEL_PANIC] Unknown operational mode: {}", mode);
@@ -92,7 +100,7 @@ async fn run_daemon() {
     let mut ovm = OVM::new(432.0, Box::new(MarketExecutor::new()));
     let aether = KrakenProvider::new();
 
-    println!("[DAEMON] Telemetry Oracle online. Synchronizing with the live Aether...");
+    println!("[DAEMON] Telemetry Oracle online. Neural Link Active. Synchronizing with the live Aether...");
 
     // Tearing down the simulation. Buffer for aggregating live ticks before OVM ingestion.
     let mut tick_buffer: Vec<f64> = Vec::with_capacity(50);
