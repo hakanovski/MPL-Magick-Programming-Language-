@@ -71,7 +71,7 @@ impl OVM {
 
         if !is_successful || self.evolution_engine.generation < 3 {
              println!("[OVM_EVOLUTION_HITCH] Sub-optimal resonance ({}). Triggering evolutionary mutation.", resonance_score);
-             self.evolution_engine.mutate_ast(&mut program);
+             self.evolution_engine.mutate_ast(&mut program, &self.akashic_record);
         }
     }
 

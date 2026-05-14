@@ -19,6 +19,7 @@ pub mod evolution;
 pub mod metal_ffi;
 pub mod mlx_engine;
 pub mod gateway;
+pub mod mesh;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]

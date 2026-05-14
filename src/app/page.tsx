@@ -2,7 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, Cpu, Hexagon, Terminal, Zap, Code, Shield, Eye, Disc } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import dynamic from 'next/dynamic';
+
+const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
+const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
 
 // Simulated Harmonic Flow Data (3-6-9 Frequencies)
 const generateHarmonicData = () => {
