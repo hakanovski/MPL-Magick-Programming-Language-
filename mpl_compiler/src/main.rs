@@ -21,6 +21,11 @@ mod parallel;
 mod graph;
 mod mesh;
 mod sonic;
+mod chronos;
+mod probability;
+mod ledger;
+mod sentinel;
+mod bridge;
 
 use lexer::Lexer;
 use parser::Parser;
@@ -45,6 +50,7 @@ async fn main() {
         eprintln!("[KERNEL_PANIC] Insufficient launch parameters. Formats:");
         eprintln!("  cargo run -- execute <path_to_script.ms>");
         eprintln!("  cargo run -- daemon");
+        eprintln!("  cargo run -- sentinel");
         return;
     }
 
@@ -74,6 +80,14 @@ async fn main() {
             let gateway_task = tokio::spawn(gateway::start_gateway());
             
             let _ = tokio::join!(daemon_task, gateway_task);
+        }
+        "sentinel" => {
+            println!("[KERNEL] Initializing Sovereign Sentinel, Oracle Stream, and Altar Gateway...");
+            let daemon_task = tokio::spawn(run_daemon());
+            let gateway_task = tokio::spawn(gateway::start_gateway());
+            let sentinel_task = tokio::spawn(sentinel::watch_sentinel_windows());
+            
+            let _ = tokio::join!(daemon_task, gateway_task, sentinel_task);
         }
         _ => {
             eprintln!("[KERNEL_PANIC] Unknown operational mode: {}", mode);

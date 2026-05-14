@@ -22,6 +22,11 @@ pub struct IntentPayload {
     script_payload: String,
 }
 
+#[derive(Deserialize)]
+pub struct TextIntentPayload {
+    intent_text: String,
+}
+
 #[derive(Serialize)]
 pub struct HealthResponse {
     status: String,
@@ -35,6 +40,10 @@ pub struct IntentResponse {
     visual_sigil: Option<Vec<crate::sigil::SigilPoint>>,
     sonic_parameters: Option<Vec<f32>>,
     generation_version: usize,
+    temporal_resonance: f64,
+    probability_confidence: f32,
+    generated_script: Option<String>,
+    ritual_seal: Option<crate::ledger::RitualSeal>,
 }
 
 /// Spawns the Axum API gateway for the Occult Virtual Machine.
@@ -46,6 +55,10 @@ pub async fn start_gateway() {
         .route("/cast_intent", post({
             let limiter = Arc::clone(&rate_limiter);
             move |headers: HeaderMap, payload: Json<IntentPayload>| cast_intent(headers, payload, limiter)
+        }))
+        .route("/manifest_from_text", post({
+            let limiter = Arc::clone(&rate_limiter);
+            move |headers: HeaderMap, payload: Json<TextIntentPayload>| manifest_from_text(headers, payload, limiter)
         }));
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 3690));
@@ -95,7 +108,7 @@ async fn cast_intent(
 
     // The runtime instantiation relies on the multi-purpose application executor
     // This allows web or native frontends to execute digital manifestation.
-    let mut ovm = OVM::new(432.0, Box::new(AppManifestExecutor::new()));
+    let mut ovm = OVM::new(432.0, Box::new(AppManifestExecutor::new()), "GATEWAY_CAST");
     ovm.execute(program);
 
     println!("[ALTAR_GATEWAY] State unified. Returning closure block to client.");
@@ -112,5 +125,56 @@ async fn cast_intent(
         visual_sigil,
         sonic_parameters,
         generation_version,
+        temporal_resonance: ovm.temporal_resonance,
+        probability_confidence: ovm.probability_confidence,
+        generated_script: None,
+        ritual_seal: ovm.last_ritual_seal.clone(),
+    }))
+}
+
+async fn manifest_from_text(
+    headers: HeaderMap, 
+    Json(payload): Json<TextIntentPayload>,
+    rate_limiter: Arc<AtomicUsize>
+) -> Result<Json<IntentResponse>, (StatusCode, &'static str)> {
+    println!("[ALTAR_GATEWAY] NLP Manifestation Engaged: {}", payload.intent_text);
+
+    match headers.get("X-MPL-SIGIL") {
+        Some(sigil) if sigil == "369-TESLA-RESONANCE" => {}
+        _ => {
+            println!("[SECURITY_FAULT] Unauthorized manifestation attempt rejected.");
+            return Err((StatusCode::UNAUTHORIZED, "Invalid or missing X-MPL-SIGIL."));
+        }
+    }
+
+    let requests = rate_limiter.fetch_add(1, Ordering::SeqCst);
+    if requests > 50 {
+        return Err((StatusCode::TOO_MANY_REQUESTS, "Intent flooding detected. Neural pathway saturated."));
+    }
+
+    let mut neural_cortex = crate::mlx_engine::NeuralCortex::new();
+    let generated_script = neural_cortex.transcode_intent_to_script(&payload.intent_text);
+
+    let lexer = Lexer::new(&generated_script);
+    let mut parser = Parser::new(lexer);
+    let program = parser.parse_program();
+
+    let mut ovm = OVM::new(432.0, Box::new(AppManifestExecutor::new()), &payload.intent_text);
+    ovm.execute(program);
+
+    let visual_sigil = ovm.last_visual_sigil.clone();
+    let generation_version = ovm.evolution_engine.generation;
+    let sonic_parameters = Some(crate::stdlib::invoke_sonic_transmutation(ovm.akashic_record.get_temporal_success_rate(), ovm.hz_alignment));
+
+    Ok(Json(IntentResponse {
+        status: "Transcoded and Executed".to_string(),
+        message: "Neural Cortex successfully mapped human intent to deterministic execution vector.".to_string(),
+        visual_sigil,
+        sonic_parameters,
+        generation_version,
+        temporal_resonance: ovm.temporal_resonance,
+        probability_confidence: ovm.probability_confidence,
+        generated_script: Some(generated_script),
+        ritual_seal: ovm.last_ritual_seal.clone(),
     }))
 }

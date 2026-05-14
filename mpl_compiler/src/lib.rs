@@ -24,6 +24,9 @@ pub mod signature;
 pub mod parallel;
 pub mod graph;
 pub mod sonic;
+pub mod chronos;
+pub mod probability;
+pub mod ledger;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]

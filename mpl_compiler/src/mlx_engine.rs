@@ -51,6 +51,26 @@ impl NeuralCortex {
         (sum / tensor.len() as f32).abs() as f64
     }
 
+    /// Transcodes natural language intent into executable MagickScript.
+    pub fn transcode_intent_to_script(&self, natural_language_intent: &str) -> String {
+        println!("[MLX_ENGINE] Transcoding natural language sequence via Neural Cortex...");
+        println!("[MLX_ENGINE] Intent: \"{}\"", natural_language_intent);
+
+        // Simulated NLP to DSL compilation.
+        // In a physical build, this streams weights from the local Llama/Mistral model on the NPU.
+        let safe_intent = natural_language_intent.replace("\"", "\\\"");
+        
+        let script = format!(
+            "sacrifice intent \"{}\" as directive;\n\
+             invocation hash_intent(directive) as harmonic_resonance;\n\
+             invocation generate_sigil(directive) as visual_manifest;\n\
+             transmute visual_manifest into aether;",
+             safe_intent
+        );
+        
+        script
+    }
+
     fn trigger_matrix_multiply_simulation(&self) {
         // Placeholder for an FFI call to Metal Performance Shaders (MPS)
     }

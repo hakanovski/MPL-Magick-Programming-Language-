@@ -15,6 +15,7 @@ use crate::evolution::EvolutionEngine;
 use crate::signature::MagickalIdentity;
 use crate::parallel::ParallelEvolution;
 use crate::mlx_engine::NeuralCortex;
+use crate::ledger::ImmutableGrimoire;
 
 /// The runtime environment holding execution context and bounded memory.
 pub struct OVM {
@@ -46,6 +47,17 @@ pub struct OVM {
 
     /// The internal MLX proxy simulating Neural Engine execution
     pub neural_cortex: NeuralCortex,
+
+    /// The temporal mapping multiplier
+    pub temporal_resonance: f64,
+    
+    /// Probability confidence output of the optimal path calculation
+    pub probability_confidence: f32,
+
+    /// The Immutable Ledger for Transmutations
+    pub grimoire: ImmutableGrimoire,
+
+    pub last_ritual_seal: Option<crate::ledger::RitualSeal>,
 }
 
 impl OVM {
@@ -63,12 +75,22 @@ impl OVM {
             evolution_engine: EvolutionEngine::new(),
             astral_signature,
             neural_cortex: NeuralCortex::new(),
+            temporal_resonance: 1.0,
+            probability_confidence: 0.0,
+            grimoire: ImmutableGrimoire::new(),
+            last_ritual_seal: None,
         }
     }
 
     /// Primary execution loop. A deterministic march through the AST sequence.
     /// Traverses the probability fields to instantiate state changes.
     pub fn execute(&mut self, mut program: Program) {
+        let ephemeris = crate::chronos::EphemerisState::new();
+        self.temporal_resonance = ephemeris.get_current_alignment_score(&self.astral_signature.seed_intent, 37.7749, -122.4194);
+
+        let prime_seed = crate::probability::ProbabilityWell::simulate_prime_timeline(&program, 10000);
+        self.probability_confidence = ((prime_seed % 100) as f32 / 100.0 * 0.5) + 0.5;
+
         self.is_anchored = true;
         
         // Execute the current generation of the AST
@@ -89,6 +111,10 @@ impl OVM {
              program = prime_program;
              self.evolution_engine = prime_evolution;
         }
+
+        // Generate the Ritual Seal after execution
+        let seal = self.grimoire.forge_seal(resonance_score, prime_seed);
+        self.last_ritual_seal = Some(seal);
     }
 
     /// Evaluates and enforces a specific AST statement primitive.
@@ -128,6 +154,12 @@ impl OVM {
 
                 // Transmute into physical reality via hardware/market hooks
                 self.execution_engine.execute_intent(&directive_str, payload.clone());
+
+                let res = self.temporal_resonance;
+                let dir_clone = directive_str.clone();
+                tokio::spawn(async move {
+                    crate::bridge::trigger_physical_manifestation(&dir_clone, res).await;
+                });
 
                 // FFI hook stand-in. In production, this pushes to the MLX layer.
                 println!("[OVM_LAYER] Transmutation Event -> Intent Vector collapsed to [{}]: {:?}", directive_str, payload);
