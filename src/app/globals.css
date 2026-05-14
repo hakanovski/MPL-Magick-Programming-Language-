@@ -3,6 +3,11 @@
 @theme {
   --color-background: #050505;
   --color-foreground: #e0e0e0;
+  
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
 }
 
 body {
