@@ -9,6 +9,7 @@ use crate::ast::{Program, Statement, Expression, MplType};
 use crate::gematria::hash_to_gematria;
 use crate::akashic::AkashicGrid;
 use crate::stdlib::{invoke_synchronize_mlx, log_to_akashic};
+use crate::execution::ExecutionEngine;
 
 /// The runtime environment holding execution context and bounded memory.
 pub struct OVM {
@@ -25,16 +26,20 @@ pub struct OVM {
 
     /// The collective state grid simulating vector memory constraints.
     akashic_record: AkashicGrid,
+
+    /// The execution engine for transmuting intent into physical reality
+    execution_engine: Box<dyn ExecutionEngine>,
 }
 
 impl OVM {
     /// Initializes a pure, void-state runtime environment anchored to a specified frequency.
-    pub fn new(tuning: f64) -> Self {
+    pub fn new(tuning: f64, execution_engine: Box<dyn ExecutionEngine>) -> Self {
         OVM {
             memory_registry: HashMap::with_capacity(256), // Pre-allocated limit avoiding re-allocation jitter
             hz_alignment: tuning,
             is_anchored: false,
             akashic_record: AkashicGrid::new(),
+            execution_engine,
         }
     }
 
@@ -65,6 +70,12 @@ impl OVM {
                 // If the transmuted value is an intent string, serialize it into the ledger.
                 if let MplType::Intent(ref text) = eval_val {
                     log_to_akashic(&mut self.akashic_record, text);
+                    
+                    // Pull a resonance metric (or use baseline) for the action weight
+                    let execution_weight = self.hz_alignment;
+                    
+                    // Transmute into physical reality via hardware/market hooks
+                    self.execution_engine.execute_intent(text, execution_weight);
                 }
 
                 // FFI hook stand-in. In production, this pushes to the MLX layer.
