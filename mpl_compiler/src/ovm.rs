@@ -12,6 +12,9 @@ use crate::akashic::AkashicGrid;
 use crate::stdlib::{invoke_synchronize_mlx, log_to_akashic};
 use crate::execution::ExecutionEngine;
 use crate::evolution::EvolutionEngine;
+use crate::signature::MagickalIdentity;
+use crate::parallel::ParallelEvolution;
+use crate::mlx_engine::NeuralCortex;
 
 /// The runtime environment holding execution context and bounded memory.
 pub struct OVM {
@@ -37,11 +40,19 @@ pub struct OVM {
 
     /// The Self-Modifying Core handling programmatic mutations
     pub evolution_engine: EvolutionEngine,
+
+    /// The cryptographic identity anchored to this OVM instance
+    pub astral_signature: MagickalIdentity,
+
+    /// The internal MLX proxy simulating Neural Engine execution
+    pub neural_cortex: NeuralCortex,
 }
 
 impl OVM {
     /// Initializes a pure, void-state runtime environment anchored to a specified frequency.
-    pub fn new(tuning: f64, execution_engine: Box<dyn ExecutionEngine>) -> Self {
+    pub fn new(tuning: f64, execution_engine: Box<dyn ExecutionEngine>, intent: &str) -> Self {
+        let astral_signature = MagickalIdentity::forge(intent);
+
         OVM {
             memory_registry: HashMap::with_capacity(256), // Pre-allocated limit avoiding re-allocation jitter
             hz_alignment: tuning,
@@ -50,6 +61,8 @@ impl OVM {
             last_visual_sigil: None,
             execution_engine,
             evolution_engine: EvolutionEngine::new(),
+            astral_signature,
+            neural_cortex: NeuralCortex::new(),
         }
     }
 
@@ -70,8 +83,11 @@ impl OVM {
         let is_successful = resonance_score >= 369.0; // placeholder for hardware feedback loop
 
         if !is_successful || self.evolution_engine.generation < 3 {
-             println!("[OVM_EVOLUTION_HITCH] Sub-optimal resonance ({}). Triggering evolutionary mutation.", resonance_score);
-             self.evolution_engine.mutate_ast(&mut program, &self.akashic_record);
+             println!("[OVM_EVOLUTION_HITCH] Sub-optimal resonance ({}). Triggering parallel evolutionary mutation.", resonance_score);
+             let parallel_engine = ParallelEvolution::new(10);
+             let (prime_program, prime_evolution) = parallel_engine.select_prime_resonance(&program, &self.evolution_engine, &self.akashic_record);
+             program = prime_program;
+             self.evolution_engine = prime_evolution;
         }
     }
 
@@ -145,11 +161,37 @@ impl OVM {
                     let mlx_result = invoke_synchronize_mlx(&temp_matrix, self.hz_alignment);
                     MplType::Frequency(mlx_result)
                 } else if target == "hash_intent" {
-                    // Primitive runtime hook into the Gematria algorithm
-                    let entropy = crate::entropy::collect_hardware_entropy();
-                    let hashed_val = hash_to_gematria(&target, entropy);
+                    // Primitive runtime hook into the Gematria algorithm with Neural Cortex integration
+                    let signature_resonance = self.astral_signature.get_resonance_modifier();
+                    let hardware_entropy = crate::entropy::collect_hardware_entropy();
+                    let combined_entropy = hardware_entropy ^ signature_resonance;
+
+                    let directive = self.memory_registry.get("directive").cloned();
+                    let text = if let Some(MplType::Intent(val)) = directive {
+                         val
+                    } else {
+                         target.clone()
+                    };
+
+                    let hashed_val = hash_to_gematria(&text, combined_entropy);
+                    
+                    // MLX Integration: Convert intent to Tensor and extract semantic multiplier
+                    let tensor = self.neural_cortex.interpret_intent_vector(&self.astral_signature.signature_hex, self.hz_alignment);
+                    let semantic_weight = self.neural_cortex.extract_semantic_weight(&tensor);
+
+                    // Adjust final gematria representation with NPU output
+                    let final_resonance = hashed_val as f64 * semantic_weight;
+
+                    // Log into Akashic Graph
+                    self.akashic_record.write_intent(&text, Some(final_resonance), Some(hashed_val), Some(&self.astral_signature.signature_hex));
+
+                    // If mnemonic echoes exist, log them
+                    if let Some(echo) = self.akashic_record.mnemonic_graph.find_nearest_resonance(hashed_val) {
+                        println!("[OVM_MNEMONIC] Neural Cortex detected resonance echo: Node({})", echo);
+                    }
+
                     // Return as a harmonic frequency for mathematical interop
-                    MplType::Frequency(hashed_val as f64)
+                    MplType::Frequency(final_resonance)
                 } else if target == "generate_sigil" {
                     // Evaluate the intent or target, for now we will just use a placeholder intent or extract it
                     // if args were parsed, but ast expression doesn't resolve args inside dispatch yet.

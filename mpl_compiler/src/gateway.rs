@@ -33,6 +33,7 @@ pub struct IntentResponse {
     status: String,
     message: String,
     visual_sigil: Option<Vec<crate::sigil::SigilPoint>>,
+    sonic_parameters: Option<Vec<f32>>,
     generation_version: usize,
 }
 
@@ -102,10 +103,14 @@ async fn cast_intent(
     let visual_sigil = ovm.last_visual_sigil.clone();
     let generation_version = ovm.evolution_engine.generation;
 
+    // Default resonance output for the frontend audio
+    let sonic_parameters = Some(crate::stdlib::invoke_sonic_transmutation(ovm.akashic_record.get_temporal_success_rate(), ovm.hz_alignment));
+
     Ok(Json(IntentResponse {
         status: "Synchronized".to_string(),
         message: "Vector sequence parsed and executed by the Occult Virtual Engine.".to_string(),
         visual_sigil,
+        sonic_parameters,
         generation_version,
     }))
 }

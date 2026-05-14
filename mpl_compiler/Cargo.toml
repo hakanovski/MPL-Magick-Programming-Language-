@@ -21,6 +21,8 @@ axum = "0.7"
 rand = "0.8"
 wasm-bindgen = "0.2"
 getrandom = { version = "0.2" }
+rayon = "1.10"
+sha2 = "0.10"
 
 [build-dependencies]
 cc = "1.0"

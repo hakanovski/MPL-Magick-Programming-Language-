@@ -16,6 +16,11 @@ mod mlx_engine;
 mod sigil;
 mod evolution;
 mod entropy;
+mod signature;
+mod parallel;
+mod graph;
+mod mesh;
+mod sonic;
 
 use lexer::Lexer;
 use parser::Parser;
@@ -86,7 +91,7 @@ fn execute_script(source_code: &str) {
     let program = parser.parse_program();
 
     println!("[OVM] Initializing Occult Virtual Machine at 432.0 Hz baseline.");
-    let mut ovm = OVM::new(432.0, Box::new(MarketExecutor::new()));
+    let mut ovm = OVM::new(432.0, Box::new(MarketExecutor::new()), "PRIMARY_EXECUTION");
     
     println!("[EXECUTION] Resolving Intent and anchoring state variables...");
     ovm.execute(program);
@@ -96,9 +101,10 @@ fn execute_script(source_code: &str) {
 
 /// The continuous simulation loop bridging the Oracle to the Aether network.
 async fn run_daemon() {
-    let oracle = Oracle::new();
-    let mut ovm = OVM::new(432.0, Box::new(MarketExecutor::new()));
+    let oracle = oracle::FinancialOracle::new();
+    let mut ovm = OVM::new(432.0, Box::new(MarketExecutor::new()), "DAEMON_TELEMETRY");
     let aether = KrakenProvider::new();
+    let mut mesh_node = mesh::MeshNode::new("DAEMON_ALPHA".to_string());
 
     println!("[DAEMON] Telemetry Oracle online. Neural Link Active. Synchronizing with the live Aether...");
 

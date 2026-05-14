@@ -12,6 +12,7 @@ pub struct FitnessRecord {
     pub resonance_score: f64,
 }
 
+#[derive(Clone)]
 pub struct EvolutionEngine {
     pub generation: usize,
 }

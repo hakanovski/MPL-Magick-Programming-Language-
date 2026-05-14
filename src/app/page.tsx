@@ -2,15 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Activity, Cpu, Hexagon, Terminal, Zap, Code, Shield, Eye, Disc } from 'lucide-react';
-import dynamic from 'next/dynamic';
-
-const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
-const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
-const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
-const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
-const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 // Simulated Harmonic Flow Data (3-6-9 Frequencies)
 const generateHarmonicData = () => {
@@ -44,6 +36,11 @@ transmute directive
   const [logs, setLogs] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [chartData, setChartData] = useState(generateHarmonicData());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -179,30 +176,32 @@ transmute directive
               </div>
               
               <div className="flex-1 w-full min-h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="color3" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="color6" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-                    <XAxis dataKey="time" hide />
-                    <YAxis stroke="#555" fontSize={10} tickFormatter={(v) => `${v}Hz`} />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: '#050505', border: '1px solid #bc13fe', fontFamily: 'monospace', fontSize: '10px' }}
-                      itemStyle={{ color: '#00f2ff' }}
-                    />
-                    <Area type="monotone" dataKey="freq3" stroke="#00f2ff" fillOpacity={1} fill="url(#color3)" />
-                    <Area type="monotone" dataKey="freq6" stroke="#bc13fe" fillOpacity={1} fill="url(#color6)" />
-                    <Area type="monotone" dataKey="freq9" stroke="#d4af37" fillOpacity={0.1} />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {mounted && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="color3" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#06b6d4" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="color6" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#a855f7" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#a855f7" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
+                      <XAxis dataKey="time" hide />
+                      <YAxis stroke="#555" fontSize={10} tickFormatter={(v) => `${v}Hz`} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#050505', border: '1px solid #bc13fe', fontFamily: 'monospace', fontSize: '10px' }}
+                        itemStyle={{ color: '#00f2ff' }}
+                      />
+                      <Area type="monotone" dataKey="freq3" stroke="#00f2ff" fillOpacity={1} fill="url(#color3)" />
+                      <Area type="monotone" dataKey="freq6" stroke="#bc13fe" fillOpacity={1} fill="url(#color6)" />
+                      <Area type="monotone" dataKey="freq9" stroke="#d4af37" fillOpacity={0.1} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
 

@@ -18,7 +18,7 @@ pub fn invoke_synchronize_mlx(data: &[f64], tuning: f64) -> f64 {
 
 /// Abstract function to record deterministic physical intent onto the memory grid.
 pub fn log_to_akashic(grid: &mut AkashicGrid, intent: &str) {
-    grid.write_intent(intent);
+    grid.write_intent(intent, None, None, None);
 }
 
 /// Queries the collective esoteric databank (Vector memory/LLM simulation).
@@ -39,4 +39,10 @@ pub fn invoke_generate_sigil(intent: &str) -> Vec<crate::sigil::SigilPoint> {
     let entropy = crate::entropy::collect_hardware_entropy();
     let hash = crate::gematria::hash_to_gematria(intent, entropy);
     crate::sigil::generate_sigil_data(hash, entropy)
+}
+
+/// Generates audio frequency arrays to manifest the resonance back into physical reality.
+pub fn invoke_sonic_transmutation(resonance_score: f64, tuning: f64) -> Vec<f32> {
+    let sonic_engine = crate::sonic::SonicFrequency::new(tuning);
+    sonic_engine.generate_resonance_tone(resonance_score)
 }

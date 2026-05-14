@@ -20,6 +20,10 @@ pub mod metal_ffi;
 pub mod mlx_engine;
 pub mod gateway;
 pub mod mesh;
+pub mod signature;
+pub mod parallel;
+pub mod graph;
+pub mod sonic;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]
@@ -35,7 +39,7 @@ impl WasmOVM {
         // Use AppManifestExecutor for frontend abstraction
         let executor = Box::new(execution::AppManifestExecutor::new());
         Self {
-            inner: ovm::OVM::new(432.0, executor),
+            inner: ovm::OVM::new(432.0, executor, "WASM_FRONTEND_INTERFACE"),
         }
     }
 

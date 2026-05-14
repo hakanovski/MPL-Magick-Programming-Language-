@@ -6,14 +6,14 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 /// A node in the Grimoire Mesh representing a peer OVM.
-pub struct ResonanceNode {
+pub struct MeshNode {
     pub node_id: String,
     pub active: bool,
     pub local_resonance: f64,
     pub last_sync: u64,
 }
 
-impl ResonanceNode {
+impl MeshNode {
     pub fn new(node_id: String) -> Self {
         Self {
             node_id,
@@ -24,16 +24,21 @@ impl ResonanceNode {
     }
 
     /// Implement a gossip-protocol-ready broadcast for the evolutionary fitness sequence.
-    /// This ensures that when one node finds a high-resonance 3-6-9 pattern, it can be 
-    /// cached by the "Collective Akashic" for other OVMs to use.
     pub fn broadcast_fitness(signature: u32, score: f64) {
         let timestamp = get_current_micros();
         println!(
             "[GRIMOIRE_MESH] BROADCAST -> Signature: {}, Score: {:.4}, Temporal_Vector: {}",
             signature, score, timestamp
         );
-        // In a live decentralized node, this would serialize the payload and fire
-        // over an encrypted QUIC/UDP stream to peer peers.
+    }
+    
+    pub fn broadcast_mnemonic_echo(node_id: u32, strength: f64) {
+        let timestamp = get_current_micros();
+        println!(
+            "[AETHERIC_PULSE] BROADCAST ECHO -> Node ID: {}, Strength: {:.4}, Temporal_Vector: {}",
+            node_id, strength, timestamp
+        );
+        // Simulate P2P gossip communication
     }
 
     pub fn sync_with_peer(&mut self, peer_resonance: f64) {
