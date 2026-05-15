@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Hexagon } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';

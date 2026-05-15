@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { activeMplClient, AkashicResponse } from '../../sdk/mpl_client';
 import { Planchette } from '../../components/Planchette';
 import { Cpu, Terminal, Zap, Activity } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../components/Planchette'; // Reusing utility
 
 export default function AkashicOuija() {
