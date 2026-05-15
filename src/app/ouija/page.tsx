@@ -89,7 +89,7 @@ export default function AkashicOuija() {
   const latestResponse = history[0]?.r;
 
   return (
-    <div className="min-h-screen bg-[#030303] text-[#e0e0e0] font-mono selection:bg-purple-900/50 flex flex-col relative overflow-hidden">
+    <div suppressHydrationWarning className="min-h-screen bg-[#030303] text-[#e0e0e0] font-mono selection:bg-purple-900/50 flex flex-col relative overflow-hidden">
       {/* Background ambient grid (OVM Schematic Motif) */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none" />
       

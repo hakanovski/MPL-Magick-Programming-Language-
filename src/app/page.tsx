@@ -1,5 +1,6 @@
 import React from 'react';
 import { Activity, Cpu, Hexagon, Network, Zap } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   return (
@@ -62,10 +63,10 @@ export default function Dashboard() {
                   <p className="text-white/30 text-sm tracking-widest text-center mb-6 z-10">
                     AWAITING INTENT FORMULATION<br/>[ NO RITUAL DATA RECEIVED ]
                   </p>
-                  <a href="/ouija" className="z-10 px-6 py-2 border border-purple-500/50 bg-purple-900/20 text-purple-300 text-xs font-bold tracking-widest hover:bg-purple-500 hover:text-white transition-all uppercase rounded-sm flex items-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
+                  <Link href="/ouija" className="z-10 px-6 py-2 border border-purple-500/50 bg-purple-900/20 text-purple-300 text-xs font-bold tracking-widest hover:bg-purple-500 hover:text-white transition-all uppercase rounded-sm flex items-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.2)]">
                     <Zap className="h-4 w-4" />
                     Enter Akashic Ouija
-                  </a>
+                  </Link>
                 </div>
              </div>
         </div>
