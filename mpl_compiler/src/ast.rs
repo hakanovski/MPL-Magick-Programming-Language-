@@ -73,6 +73,9 @@ pub enum Statement {
     
     /// Scoped execution block, ensuring local variance doesn't pollute the global state.
     RitualBlock(Vec<Statement>),                         
+    
+    /// Dynamically fetches and anchors an external esoteric context.
+    Import { package: String },
 }
 
 #[derive(Debug, PartialEq, Clone)]

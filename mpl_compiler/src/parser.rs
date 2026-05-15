@@ -39,6 +39,7 @@ impl<'a> Parser<'a> {
             Token::Sacrifice => self.parse_sacrifice(),
             Token::Transmute => self.parse_transmute(),
             Token::Invoke => self.parse_invoke_statement(),
+            Token::Import => self.parse_import(),
             _ => panic!("Invalid ritual construction: Phase disjoint. Expected statement primitive."),
         }
     }
@@ -98,6 +99,18 @@ impl<'a> Parser<'a> {
             intent: Expression::Invocation { target: target.clone(), args: vec![] }, 
             target: target 
         }
+    }
+
+    /// Parses dynamic script injection from the Akashic Registry.
+    /// Syntax: `import "<package_id>"`
+    fn parse_import(&mut self) -> Statement {
+        self.advance(); // consume 'import'
+        let package = match &self.current_token {
+            Token::IntentString(pkg) => pkg.clone(),
+            _ => panic!("Architectural Fault: Expected registry path (IntentString) after import"),
+        };
+        self.advance();
+        Statement::Import { package }
     }
 
     /// Resolves literal values and primitive recursive vectors (expressions).

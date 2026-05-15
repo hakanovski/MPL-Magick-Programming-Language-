@@ -182,6 +182,36 @@ impl OVM {
                     self.evaluate_statement(s);
                 }
             }
+
+            // Injects external contexts gracefully into the active memory pool
+            Statement::Import { package } => {
+                println!("[OVM_LAYER] Harmonic displacement detected. Pausing local frame to inject: {}", package);
+                
+                #[cfg(not(target_arch = "wasm32"))]
+                {
+                    let client = crate::registry::RegistryClient::new();
+                    // Secure sync boundary step out for native async calls
+                    let sub_script = std::thread::scope(|s| {
+                        s.spawn(|| {
+                            tokio::runtime::Runtime::new().unwrap().block_on(client.fetch_package(&package))
+                        }).join().unwrap()
+                    });
+                    
+                    let lexer = crate::lexer::Lexer::new(&sub_script);
+                    let mut parser = crate::parser::Parser::new(lexer);
+                    let sub_program = parser.parse_program();
+                    
+                    for sub_statement in sub_program.statements {
+                        self.evaluate_statement(sub_statement);
+                    }
+                    println!("[OVM_LAYER] Dynamic injection stabilized. Resuming host geometry.");
+                }
+                
+                #[cfg(target_arch = "wasm32")]
+                {
+                    println!("[OVM_LAYER] WASM dynamic import deferred: Cannot block main thread for {}", package);
+                }
+            }
         }
     }
 

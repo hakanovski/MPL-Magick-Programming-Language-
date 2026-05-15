@@ -28,6 +28,7 @@ pub mod chronos;
 pub mod probability;
 pub mod ledger;
 pub mod sdk_bridge;
+pub mod registry;
 
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen]

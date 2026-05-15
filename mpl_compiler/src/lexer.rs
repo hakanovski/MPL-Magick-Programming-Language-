@@ -10,6 +10,7 @@ pub enum Token {
     Sacrifice, // Assign memory / Variable declaration
     Transmute, // Mutate state / Return logic
     Invoke,    // Execute function / Call external FFI
+    Import,    // Akashic Registry fetch
 
     // ---- Data Types (The Elements) ----
     SigilLiteral(String),  // A hashed or strict identifier literal
@@ -93,6 +94,7 @@ impl<'a> Lexer<'a> {
             "sacrifice" => Token::Sacrifice,
             "transmute" => Token::Transmute,
             "invoke" => Token::Invoke,
+            "import" => Token::Import,
             _ => Token::Identifier(value.to_string()),
         }
     }

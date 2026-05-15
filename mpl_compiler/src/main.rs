@@ -27,6 +27,7 @@ mod ledger;
 mod sentinel;
 mod bridge;
 mod sdk_bridge;
+pub mod registry;
 
 use lexer::Lexer;
 use parser::Parser;
@@ -50,6 +51,8 @@ async fn main() {
     if args.len() < 2 {
         eprintln!("[KERNEL_PANIC] Insufficient launch parameters. Formats:");
         eprintln!("  cargo run -- execute <path_to_script.ms>");
+        eprintln!("  cargo run -- publish <path_to_script.ms>");
+        eprintln!("  cargo run -- install <package_id>");
         eprintln!("  cargo run -- daemon");
         eprintln!("  cargo run -- sentinel");
         return;
@@ -91,6 +94,29 @@ async fn main() {
             let sentinel_task = tokio::spawn(sentinel::watch_sentinel_windows(shared_state.clone()));
             
             let _ = tokio::join!(daemon_task, gateway_task, sentinel_task);
+        }
+        "publish" => {
+            if args.len() < 3 {
+                eprintln!("[KERNEL_PANIC] Missing manuscript path. Usage: publish <path>");
+                return;
+            }
+            let file_path = &args[2];
+            let client = registry::RegistryClient::new();
+            client.publish_package(file_path, "ALICE_NODE_01").await;
+        }
+        "install" => {
+            if args.len() < 3 {
+                eprintln!("[KERNEL_PANIC] Missing package ID. Usage: install <package_id>");
+                return;
+            }
+            let package_id = &args[2];
+            let client = registry::RegistryClient::new();
+            let content = client.fetch_package(package_id).await;
+            
+            // Simulating a local cache write (e.g. into `~/.mpl/registry/`)
+            let cache_name = format!("{}.ms", package_id.replace("@", "").replace("/", "_"));
+            std::fs::write(&cache_name, content).expect("Failed to cache esoteric package locally");
+            println!("[MPM] Bound local manifestation to ./{}", cache_name);
         }
         _ => {
             eprintln!("[KERNEL_PANIC] Unknown operational mode: {}", mode);
